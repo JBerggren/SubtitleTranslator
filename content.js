@@ -1,49 +1,95 @@
-var className = "_video-player__text-tracks_qoxkq_1";
-var subtitleEl = document.querySelector("." + className);
-const config = { attributes: false, childList: true, subtree: false };
-var key = "YOUR_OWN_API_KEY";
-var googleTranslateUrl = "https://translation.googleapis.com/language/translate/v2";
-var sourceLang = "sv";
-var targetLang = "en";
+var config = {
+    url:"https://translation.googleapis.com/language/translate/v2",
+    source:'sv',
+    target:'en',
+    apiKey:'',
+    showOriginal:false
+};
 
-function translateLeetSpeak(subtitleParent){
-    var oldText = subtitleParent.innerText;
-    var newText = oldText.replace(/o/g,"0").replace(/l/g,"1").replace(/r/g,"2").replace(/e/g,"3").replace(/a/g,"4").replace(/s/g,"5").replace(/g/g,"6").replace(/t/g,"7").replace(/b/g,"8");
-    var newP = document.createElement("p");
-    newP.textContent = newText;
-    subtitleParent.replaceChildren(newP);
+var lastTranslation ={original:'',translated:''};
+
+function startTranslation(){
+    chrome.storage.sync.get({
+        source: 'sv',
+        target: 'en',
+        apiKey: '',
+        showOriginal:false
+      }, function (items) {
+        if(!items.apiKey){
+            alert("No api key found!");
+            return;
+        }
+        var subtitleEl = document.querySelector("._video-player__text-tracks_qoxkq_1"); //SVT Play
+        if(subtitleEl == null){
+            subtitleEl = document.querySelector(".player-timedtext"); //Netflix
+        }
+        if(subtitleEl == null){
+            alert("Cannot find subtitles");
+            return;
+        }
+        config.source = items.source;
+        config.target = items.target;
+        config.apiKey = items.apiKey;
+        config.showOriginal = items.showOriginal;
+
+        var observer = new MutationObserver(callback);
+        observer.observe(subtitleEl, { attributes: false, childList: true, subtree: false });
+      });
 }
 
-function translateGoogle(subtitleParent){
-    var oldText = subtitleParent.innerText;
-    if(!oldText){
+function translate(subtitleParent){
+    var originalText = subtitleParent.innerText;
+    if(!originalText){
         return;
     }
-    console.log("Got old text:" + oldText);
-    var url = googleTranslateUrl + `?q=${encodeURIComponent(oldText)}&source=${sourceLang}&target=${targetLang}&key=${key}`;
-    fetch(url,{method:'POST'}).then(result=>result.json()).then(result=>{
-        if(result.data.translations && result.data.translations.length != 0){
-            var text = result.data.translations[0].translatedText;
-            var spanEl = document.createElement("span");
-            //text = text.replace(/\s-/g,"<br/>-"); //Fix newline 
-            spanEl.innerHTML = text; 
-            var pEl = document.createElement("p");
-            pEl.appendChild(spanEl);
-            subtitleParent.replaceChildren(pEl);
-        }
-    });
+    
+    if(config.target == "leet"){
+        var newText = originalText.replace(/o/g,"0").replace(/l/g,"1").replace(/r/g,"2").replace(/e/g,"3").replace(/a/g,"4").replace(/s/g,"5").replace(/g/g,"6").replace(/t/g,"7").replace(/b/g,"8");
+        appendSubtitle(originalText,newText,subtitleParent);
+    }else if(originalText == lastTranslation.original){
+        appendSubtitle(lastTranslation.original,lastTranslation.translated,subtitleParent);
+    }else{
+        subtitleParent.replaceChildren();
+        var url = config.url + `?q=${encodeURIComponent(originalText)}&source=${config.source}&target=${config.target}&key=${config.apiKey}`;
+        fetch(url,{method:'POST'}).then(result=>result.json()).then(result=>{
+            if(result.data.translations && result.data.translations.length != 0){
+                var text = result.data.translations[0].translatedText;
+                lastTranslation = {
+                    original: originalText,
+                    translated: text
+                };
+                appendSubtitle(lastTranslation.original,lastTranslation.translated,subtitleParent);
+            }
+        });
+    }
 }
 
-const callback = function(mutationsList, observer) {
-    // Use traditional 'for loops' for IE 11
+function appendSubtitle(originalText,translatedText,parent){
+    parent.replaceChildren(createSubtitleElement(translatedText));
+
+    if(config.showOriginal){
+        parent.appendChild(createSubtitleElement(originalText));
+    }
+}
+
+function createSubtitleElement(text){
+    var pEl = document.createElement("p");
+    pEl.style.fontSize = "19px";
+    var spanEl = document.createElement("span");
+    spanEl.innerHTML = text;
+    pEl.appendChild(spanEl);
+    return pEl;
+}
+
+var callback = function(mutationsList, observer) {
     for(const mutation of mutationsList) {
         if (mutation.type === 'childList' && mutation.addedNodes) {
            for(var addedNode of mutation.addedNodes){
-            translateGoogle(addedNode);
+            translate(addedNode);
            }
         }
     }
 };
 
-const observer = new MutationObserver(callback);
-observer.observe(subtitleEl, config);
+startTranslation();
+

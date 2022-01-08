@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        html {
+            background-color: #ccc;
+            text-align: center;
+        }
+
+        #wrapper {
+            margin-top: 1em;
+            width: 40em;
+            text-align: left;
+        }
+        label{
+            display: block;
+            margin-bottom: 1em;
+        }
+        label span{
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="wrapper">
+        <h1>Settings for Subtitle Translator</h1>
+        <label>
+            <span>Source language:</span>
+            <input type="text" id="source"  />
+        </label>
+        <label>
+            <span>Target language:</span>
+            <input type="text" id="target"/>
+        </label>
+        <label>
+            <input type="checkbox" id="showOriginal"/>
+            Show original subtitle
+        </label>
+        <label>
+            <span>Google API Key:</span>
+            <input type="text" id="apiKey" />
+        </label>
+        <div id="status"></div>
+        <button id="save">Save</button>
+    </div>
+    <script src="options.js"></script>
+</body>
+
+</html>

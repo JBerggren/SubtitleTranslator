@@ -1,13 +1,20 @@
 {
-  "name": "Subtitle translator",
-  "description": "Translate subtitles on the fly",
-  "version": "0.1",
   "manifest_version": 3,
+  "name": "Subtitle translator",
+  "description": "Translate subtitles on the fly from Netflix or SVT Play. Requires a Google API Key with Cloud Translation enabled.",
+  "version": "0.2",
+  "icons": {
+    "16": "/images/st16.png",
+    "32": "/images/st32.png",
+    "48": "/images/st48.png",
+    "128": "/images/st128.png"
+  },
   "background": {
     "service_worker": "background.js"
   },
   "action":{
       "default_title":"Click to translate"
   },
-  "permissions": ["activeTab", "scripting"]
+  "options_page": "options.html",
+  "permissions": ["activeTab", "scripting","storage"]
 }
