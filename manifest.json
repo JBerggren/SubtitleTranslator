@@ -1,0 +1,13 @@
+{
+  "name": "Subtitle translator",
+  "description": "Translate subtitles on the fly",
+  "version": "0.1",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action":{
+      "default_title":"Click to translate"
+  },
+  "permissions": ["activeTab", "scripting"]
+}
