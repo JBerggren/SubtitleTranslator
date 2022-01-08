@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Subtitle translator",
-  "description": "Translate subtitles on the fly from Netflix or SVT Play. Requires a Google API Key with Cloud Translation enabled.",
+  "name": "Subtitle Translator",
+  "description": "Translate subtitles on the fly from Netflix or SVT Play.",
   "version": "0.2",
   "icons": {
     "16": "/images/st16.png",
