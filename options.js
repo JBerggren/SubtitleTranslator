@@ -3,6 +3,7 @@ function save_options() {
   var source = document.getElementById('source').value;
   var target = document.getElementById('target').value;
   var apiKey = document.getElementById('apiKey').value;
+  var fontSize = document.getElementById('fontSize').value;
   var showOriginal = document.getElementById('showOriginal').checked;
 
   if(!source || !target || !apiKey){
@@ -14,7 +15,8 @@ function save_options() {
     source: source,
     target: target,
     apiKey: apiKey,
-    showOriginal:showOriginal
+    showOriginal:showOriginal,
+    fontSize:fontSize
   }, function () {
     // Update status to let user know options were saved.
     statusEl.textContent = 'Options saved.';
@@ -30,12 +32,14 @@ function restore_options() {
     source: 'sv',
     target: 'en',
     showOriginal:false,
-    apiKey: 'Fill_Me_In'
+    apiKey: 'Fill_Me_in',
+    fontSize:22
   }, function (items) {
     document.getElementById('source').value = items.source;
     document.getElementById('target').value = items.target;
     document.getElementById('showOriginal').checked = items.showOriginal;
     document.getElementById('apiKey').value = items.apiKey;
+    document.getElementById('fontSize').value = items.fontSize;
   });
 }
 
