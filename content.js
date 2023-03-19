@@ -1,34 +1,27 @@
-var config = {
-    url:"https://translation.googleapis.com/language/translate/v2",
-    source:'sv',
-    target:'en',
-    apiKey:'',
-    showOriginal:false,
-    fontSize:22
-};
-
 var lastTranslation ={original:'',translated:''};
 
 function startTranslation(){
-    if(window.translationStarted) return;
+    if(window.translationStarted) {
+        tearDownSubtitleElementListner();
+        teardownTextTrackListner();
+        window.translationStarted = false;
+        return;
+    };
     window.translationStarted = true;
     chrome.storage.sync.get({
+        url:"https://translation.googleapis.com/language/translate/v2",
         source: 'sv',
         target: 'en',
         apiKey: '',
         showOriginal:false,
-        fontSize:22
+        fontSize:28
       }, function (items) {
 
         if(!items.apiKey){
             alert("No api key found!");
             return;
         }
-        config.source = items.source;
-        config.target = items.target;
-        config.apiKey = items.apiKey;
-        config.showOriginal = items.showOriginal;
-        config.fontSize = items.fontSize;
+        config = items;
 
         var subtitleEl = document.querySelector("._video-player__text-tracks_qoxkq_1"); //SVT Play
         if(subtitleEl == null){
@@ -36,28 +29,13 @@ function startTranslation(){
         }
 
         if(subtitleEl != null){ //SVT or Netflix
-            var observer = new MutationObserver(callback);
-            observer.observe(subtitleEl, { attributes: false, childList: true, subtree: false });
+            setupSubtitleElementListner(subtitleEl);
             return;
         }
  
         var videoEl = document.querySelector("video");
         if(!!videoEl && videoEl.textTracks && videoEl.textTracks.length > 0){
-            var styleTag = document.createElement("style")
-            styleTag.innerText = 'video::-webkit-media-text-track-container{ display:none;}';
-            document.head.append(styleTag);
-            var textEl = document.createElement("div");
-            textEl.setAttribute("style", "pointer-events:none;position:absolute;left:0;bottom:1%;text-align:center;z-index:1000;width:100%")
-            document.body.append(textEl);
-            videoEl.textTracks[0].oncuechange = (event) =>{
-                textEl.innerHTML ="";
-                for(var i=0;i<event.target.activeCues.length;i++){
-                    textEl.innerText +=  event.target.activeCues[i].text + "\n";
-                }
-                console.log(textEl.innerText);
-                //textEl.append(tSpan);
-                translate(textEl);
-            }; 
+            setupTextTrackListner(videoEl);
         }else{
             alert("Cannot find subtitles");
             return;
@@ -65,7 +43,62 @@ function startTranslation(){
       });
 }
 
-var callback = function(mutationsList, observer) {
+function setupSubtitleElementListner(subtitleEl){
+    var observer = new MutationObserver(subtitleElementCallback);
+    observer.observe(subtitleEl, { attributes: false, childList: true, subtree: false });
+    config.observer = observer;
+}
+
+function tearDownSubtitleElementListner(){
+    if(!!config.observer){
+        config.observer.disconnect();
+        config.observer = null;
+    }
+}
+
+function setupTextTrackListner(videoEl){
+    var styleTag = document.createElement("style");
+    styleTag.id = "texttrackStyling";
+    styleTag.innerText = 'video::-webkit-media-text-track-container{ display:none;}';
+    styleTag.innerText += '#texttrackEl{pointer-events:none;position:absolute;left:0;bottom:0px;text-align:center;z-index:1000;width:100%}';
+    styleTag.innerText += '#texttrackEl span{background-color:#00000060}';
+    
+    var textEl = document.createElement("div");
+    textEl.id= "texttrackEl";
+
+    document.head.append(styleTag);
+    videoEl.parentElement.append(textEl);
+
+    config.textEl = textEl;
+    config.styleEl = styleTag;
+    config.textTrack = videoEl.textTracks[0];
+
+    config.textTrack.oncuechange = textTrackCallback;
+}
+
+function teardownTextTrackListner(){
+    if(!!config.textTrack){
+        config.textTrack.oncuechange = null;
+        config.styleEl.remove();
+        config.styleEl = null;
+        config.textEl.remove();
+        config.textEl = null;
+    }
+}
+
+function textTrackCallback(event){
+    
+    config.textEl.innerHTML ="";
+    for(var i=0;i<event.target.activeCues.length;i++){
+        var el = document.createElement("div");
+        el.innerText = event.target.activeCues[i].text;
+        config.textEl.append(el);
+        translate(el);
+    }
+}
+
+
+function subtitleElementCallback(mutationsList, observer) {
     for(const mutation of mutationsList) {
         if (mutation.type === 'childList' && mutation.addedNodes) {
            for(var addedNode of mutation.addedNodes){
