@@ -11,6 +11,12 @@ Settings window for
 * Support for Netflix
 * Setting for showing/hiding original subtitles
 
-## Plan for 0.3
+## 1.0
+Big version jump but made it less "BETA" so think it deserves it.
+* Added support for CMORE
+* Added settings for font-size
+* Added teardown functions so it can be toggled on/off instead of reloading page.
+
+## Plan forward
 * Being able to find subtitle holder by user entering currently visible text
 * Do away with Google Translation key. Use chrome.identity? (https://developer.chrome.com/docs/extensions/reference/identity/)
