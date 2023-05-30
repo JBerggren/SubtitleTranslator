@@ -2,11 +2,10 @@ function save_options() {
   var statusEl = document.getElementById('status');
   var source = document.getElementById('source').value;
   var target = document.getElementById('target').value;
-  var apiKey = document.getElementById('apiKey').value;
   var fontSize = document.getElementById('fontSize').value;
   var showOriginal = document.getElementById('showOriginal').checked;
 
-  if(!source || !target || !apiKey){
+  if(!source || !target){
     statusEl.textContent = "You need to fill in all values";
     return;
   }
@@ -14,7 +13,6 @@ function save_options() {
   chrome.storage.sync.set({
     source: source,
     target: target,
-    apiKey: apiKey,
     showOriginal:showOriginal,
     fontSize:fontSize
   }, function () {
@@ -32,13 +30,11 @@ function restore_options() {
     source: 'sv',
     target: 'en',
     showOriginal:false,
-    apiKey: 'Fill_Me_in',
-    fontSize:22
+    fontSize:28
   }, function (items) {
     document.getElementById('source').value = items.source;
     document.getElementById('target').value = items.target;
     document.getElementById('showOriginal').checked = items.showOriginal;
-    document.getElementById('apiKey').value = items.apiKey;
     document.getElementById('fontSize').value = items.fontSize;
   });
 }

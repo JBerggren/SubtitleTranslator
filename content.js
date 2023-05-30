@@ -14,11 +14,12 @@ function startTranslation(){
         target: 'en',
         apiKey: '',
         showOriginal:false,
-        fontSize:28
+        fontSize:28,
+        apiKey:'FILL_IN'
       }, function (items) {
 
         if(!items.apiKey){
-            alert("No api key found!");
+            alert("You need to set the options first. Pin it and right click to select options");
             return;
         }
         config = items;
@@ -61,7 +62,6 @@ function setupTextTrackListner(videoEl){
     styleTag.id = "texttrackStyling";
     styleTag.innerText = 'video::-webkit-media-text-track-container{ display:none;}';
     styleTag.innerText += '#texttrackEl{pointer-events:none;position:absolute;left:0;bottom:0px;text-align:center;z-index:1000;width:100%}';
-    styleTag.innerText += '#texttrackEl span{background-color:#00000060}';
     
     var textEl = document.createElement("div");
     textEl.id= "texttrackEl";
@@ -146,6 +146,7 @@ function appendSubtitle(originalText,translatedText,parent){
 function createSubtitleElement(text){
     var pEl = document.createElement("p");
     pEl.style.fontSize = config.fontSize + "px";
+    pEl.style.textShadow = "0px 0px 10px black";
     var spanEl = document.createElement("span");
     spanEl.innerHTML = text;//text.replace(/[^|\n]-/g,"<br>-");
     pEl.appendChild(spanEl);
