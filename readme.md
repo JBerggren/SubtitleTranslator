@@ -17,6 +17,9 @@ Big version jump but made it less "BETA" so think it deserves it.
 * Added settings for font-size
 * Added teardown functions so it can be toggled on/off instead of reloading page.
 
+## 1.1
+Added support for Disney+.
+
 ## Plan forward
 * Being able to find subtitle holder by user entering currently visible text
 * Do away with Google Translation key. Use chrome.identity? (https://developer.chrome.com/docs/extensions/reference/identity/)

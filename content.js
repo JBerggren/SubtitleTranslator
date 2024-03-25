@@ -28,8 +28,11 @@ function startTranslation(){
         if(subtitleEl == null){
             subtitleEl = document.querySelector(".player-timedtext"); //Netflix
         }
+        if(subtitleEl == null){
+            subtitleEl = document.querySelector(".dss-hls-subtitle-overlay");
+        }
 
-        if(subtitleEl != null){ //SVT or Netflix
+        if(subtitleEl != null){ //SVT, Netflix or disney+
             setupSubtitleElementListner(subtitleEl);
             return;
         }
