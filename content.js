@@ -30,6 +30,13 @@ function startTranslation(){
         }
         if(subtitleEl == null){
             subtitleEl = document.querySelector(".dss-hls-subtitle-overlay");
+            if(subtitleEl!=null){ //Add specific styling
+                var styleTag = document.createElement("style");
+                styleTag.id = "disneyTexttrackStyling";
+                styleTag.innerText += '.dss-subtitle-renderer-wrapper>p{position:absolute;bottom:0;left:0;right:0;text-align:center;color:white;}';
+            
+                document.head.append(styleTag);
+            }
         }
 
         if(subtitleEl != null){ //SVT, Netflix or disney+
