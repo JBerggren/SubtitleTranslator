@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Subtitle Translator",
   "description": "Translate subtitles on the fly from Netflix, SVT Play, CMore, Tv4Play or Disney+.",
-  "version": "1.1",
+  "version": "1.2",
   "icons": {
     "16": "/images/st16.png",
     "32": "/images/st32.png",
