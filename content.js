@@ -23,35 +23,34 @@ function startTranslation(){
             return;
         }
         config = items;
-
-        var subtitleEl = document.querySelector("._video-player__text-tracks_qoxkq_1"); //SVT Play
-        if(subtitleEl == null){
-            subtitleEl = document.querySelector(".player-timedtext"); //Netflix
-        }
-        if(subtitleEl == null){
-            subtitleEl = document.querySelector(".dss-hls-subtitle-overlay");
-            if(subtitleEl!=null){ //Add specific styling
-                var styleTag = document.createElement("style");
-                styleTag.id = "disneyTexttrackStyling";
-                styleTag.innerText += '.dss-subtitle-renderer-wrapper>p{position:absolute;bottom:0;left:0;right:0;text-align:center;color:white;}';
-            
-                document.head.append(styleTag);
-            }
-        }
-
-        if(subtitleEl != null){ //SVT, Netflix or disney+
-            setupSubtitleElementListner(subtitleEl);
-            return;
-        }
- 
-        var videoEl = document.querySelector("video");
-        if(!!videoEl && videoEl.textTracks && videoEl.textTracks.length > 0){
-            setupTextTrackListner(videoEl);
-        }else{
-            alert("Cannot find subtitles");
-            return;
-        }
+        setupVideoListner();
       });
+}
+
+function setupVideoListner(){
+    var subtitleEl = document.querySelector(".player-timedtext"); //Netflix
+    if(subtitleEl == null){
+        subtitleEl = document.querySelector(".dss-hls-subtitle-overlay");
+        if(subtitleEl!=null){ //Add specific styling
+            var styleTag = document.createElement("style");
+            styleTag.id = "disneyTexttrackStyling";
+            styleTag.innerText += '.dss-subtitle-renderer-wrapper>p{position:absolute;bottom:0;left:0;right:0;text-align:center;color:white;}';
+            document.head.append(styleTag);
+        }
+    }
+
+    if(subtitleEl != null){ //SVT, Netflix or disney+
+        setupSubtitleElementListner(subtitleEl);
+        return;
+    }
+
+    var videoEl = document.querySelector("video");
+    if(!!videoEl && videoEl.textTracks && videoEl.textTracks.length > 0){
+        setupTextTrackListner(videoEl);
+    }else{
+        alert("Cannot find subtitles");
+        return;
+    }
 }
 
 function setupSubtitleElementListner(subtitleEl){
@@ -71,6 +70,7 @@ function setupTextTrackListner(videoEl){
     var styleTag = document.createElement("style");
     styleTag.id = "texttrackStyling";
     styleTag.innerText = 'video::-webkit-media-text-track-container{ display:none;}';
+    styleTag.innerText += '#html-subtitles{display:none;}';
     styleTag.innerText += '#texttrackEl{pointer-events:none;position:absolute;left:0;bottom:0px;text-align:center;z-index:1000;width:100%}';
     
     var textEl = document.createElement("div");
@@ -82,8 +82,12 @@ function setupTextTrackListner(videoEl){
     config.textEl = textEl;
     config.styleEl = styleTag;
     config.textTrack = videoEl.textTracks[0];
-
-    config.textTrack.oncuechange = textTrackCallback;
+    for(var i=1;i<videoEl.textTracks.length;i++){
+        if(videoEl.textTracks[i].mode == "showing"){
+            config.textTrack = videoEl.textTracks[i];
+        }
+    }
+    config.textTrack.addEventListener("cuechange", textTrackCallback);
 }
 
 function teardownTextTrackListner(){
@@ -97,7 +101,6 @@ function teardownTextTrackListner(){
 }
 
 function textTrackCallback(event){
-    
     config.textEl.innerHTML ="";
     for(var i=0;i<event.target.activeCues.length;i++){
         var el = document.createElement("div");

@@ -20,6 +20,10 @@ Big version jump but made it less "BETA" so think it deserves it.
 ## 1.1
 Added support for Disney+.
 
+## 1.2
+Fix of SVT Play after change of how SVT shows subtitles
+Fix of double subtitles on TV4Play
+
 ## Plan forward
 * Being able to find subtitle holder by user entering currently visible text
 * Do away with Google Translation key. Use chrome.identity? (https://developer.chrome.com/docs/extensions/reference/identity/)
