@@ -24,6 +24,6 @@ Added support for Disney+.
 Fix of SVT Play after change of how SVT shows subtitles
 Fix of double subtitles on TV4Play
 
-## Plan forward
-* Being able to find subtitle holder by user entering currently visible text
-* Do away with Google Translation key. Use chrome.identity? (https://developer.chrome.com/docs/extensions/reference/identity/)
+## 1.3
+Adjustments for Prime, Netflix, Disney and SVTPlay
+Added setting for using own translation key. Without it, the plugin only works on SVTPlay.

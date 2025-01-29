@@ -13,12 +13,23 @@
             width: 40em;
             text-align: left;
         }
-        label{
+
+        label {
             display: block;
             margin-bottom: 1em;
         }
-        label span{
+
+        label span {
             display: block;
+        }
+
+        .flexBox{
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .flexBox>label{
+            flex: 1;
+            min-width: 50%;
         }
     </style>
 </head>
@@ -26,24 +37,31 @@
 <body>
     <div id="wrapper">
         <h1>Settings</h1>
-        <label>
-            <span>Source language:</span>
-            <input type="text" id="source"  />
-        </label>
-        <label>
-            <span>Target language:</span>
-            <input type="text" id="target"/>
-        </label>
-        <label>
-            <span>Font size</span>
-            <input type="number" id="fontSize"/>
-        </label>
-        <label>
-            <input type="checkbox" id="showOriginal"/>
-            Show original subtitle
-        </label>
+        <div class="flexBox"> <label>
+                <span>Source language:</span>
+                <input type="text" id="source" />
+            </label>
+            <label>
+                <span>Target language:</span>
+                <input type="text" id="target" />
+            </label>
+            <label>
+                <span>Font size</span>
+                <input type="number" id="fontSize" />
+            </label>
+            <label>
+                <span>Own Google Translate Key</span>
+                <input type="text" id="ownKey" />
+            </label>
+            <label>
+                <input type="checkbox" id="showOriginal" />
+                Show original subtitle
+            </label>
+        </div>
+
         <div id="status"></div>
         <button id="save">Save</button>
+        <p>In order to use the plugin with services other than SVTPlay you need to provide your own Google Translation Key. <a href="https://stackoverflow.com/questions/4854388/google-api-key-for-translation">Read here for directions</a>  </p>
     </div>
     <script src="options.js"></script>
 </body>

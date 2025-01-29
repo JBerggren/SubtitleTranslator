@@ -12,10 +12,10 @@ function startTranslation(){
         url:"https://translation.googleapis.com/language/translate/v2",
         source: 'sv',
         target: 'en',
-        apiKey: '',
         showOriginal:false,
         fontSize:28,
-        apiKey:'FILL_IN'
+        apiKey:'FILL_IN',
+        ownKey:''
       }, function (items) {
 
         if(!items.apiKey){
@@ -29,27 +29,42 @@ function startTranslation(){
 
 function setupVideoListner(){
     var subtitleEl = document.querySelector(".player-timedtext"); //Netflix
-    if(subtitleEl == null){
-        subtitleEl = document.querySelector(".dss-hls-subtitle-overlay");
+    if(subtitleEl != null){ 
+        var styleTag = document.createElement("style");
+        styleTag.id = "textTrackStyle";
+        styleTag.innerText = '.player-timedtext-text-container{left:0;right:0;white-space:break-spaces}';
+        document.head.append(styleTag);
+    }
+    if(subtitleEl ==null){ //Try Disney
+        subtitleEl = document.querySelector(".TimedTextOverlay"); //Disney, previous dss-hls-subtitle-overlay");
         if(subtitleEl!=null){ //Add specific styling
             var styleTag = document.createElement("style");
-            styleTag.id = "disneyTexttrackStyling";
-            styleTag.innerText += '.dss-subtitle-renderer-wrapper>p{position:absolute;bottom:0;left:0;right:0;text-align:center;color:white;}';
+            styleTag.id = "textTrackStyle";
+            styleTag.innerText = '.hive-subtitle-renderer-wrapper{display:flex;width:100%;height:95%;flex-direction:column;align-items:center;justify-content:end;margin:0 !important;}';
+            styleTag.innerText+= '.hive-subtitle-renderer-wrapper p{color:white;margin:0.2em;}';
+            document.head.append(styleTag);
+        }
+    }
+    if(subtitleEl == null){ //Try Prime
+        subtitleEl = document.querySelector(".atvwebplayersdk-captions-overlay"); //Prime
+        if(subtitleEl!=null){ //Add specific styling
+            var styleTag = document.createElement("style");
+            styleTag.id = "textTrackStyle";
+            styleTag.innerText = '.atvwebplayersdk-captions-overlay>div{position:absolute;bottom:0;left:0;right:0;text-align:center;color:white;height:auto;padding-bottom:5%}';
             document.head.append(styleTag);
         }
     }
 
-    if(subtitleEl != null){ //SVT, Netflix or disney+
+    if(subtitleEl != null){ //If we have found a match
         setupSubtitleElementListner(subtitleEl);
-        return;
-    }
-
-    var videoEl = document.querySelector("video");
-    if(!!videoEl && videoEl.textTracks && videoEl.textTracks.length > 0){
-        setupTextTrackListner(videoEl);
     }else{
-        alert("Cannot find subtitles");
-        return;
+        var videoEl = document.querySelector("video");
+        if(!!videoEl && videoEl.textTracks && videoEl.textTracks.length > 0){
+            setupTextTrackListner(videoEl);
+        }else{
+            alert("Cannot find subtitles");
+            return;
+        }
     }
 }
 
@@ -71,7 +86,7 @@ function setupTextTrackListner(videoEl){
     styleTag.id = "texttrackStyling";
     styleTag.innerText = 'video::-webkit-media-text-track-container{ display:none;}';
     styleTag.innerText += '#html-subtitles{display:none;}';
-    styleTag.innerText += '#texttrackEl{pointer-events:none;position:absolute;left:0;bottom:0px;text-align:center;z-index:1000;width:100%}';
+    styleTag.innerText += '#texttrackEl{pointer-events:none;position:absolute;left:0;bottom:5%;text-align:center;z-index:1000;width:100%}';
     
     var textEl = document.createElement("div");
     textEl.id= "texttrackEl";
@@ -134,8 +149,13 @@ function translate(subtitleParent){
         appendSubtitle(lastTranslation.original,lastTranslation.translated,subtitleParent);
     }else{
         subtitleParent.replaceChildren();
-        var url = config.url + `?q=${encodeURIComponent(originalText)}&source=${config.source}&target=${config.target}&key=${config.apiKey}`;
-        fetch(url,{method:'POST'}).then(result=>result.json()).then(result=>{
+        var apiKey = config.apiKey;
+        if(!!config.ownKey) apiKey = config.ownKey;
+        var url = config.url + `?q=${encodeURIComponent(originalText)}&source=${config.source}&target=${config.target}&key=${apiKey}`;
+        fetch(url,{method:'POST'}).then(result=>{
+            if(result.status == 403) throw new Error("Error calling Google Translate. Check you own translation key?")
+            return result.json();
+        }).then(result=>{
             if(result.data.translations && result.data.translations.length != 0){
                 var text = result.data.translations[0].translatedText;
                 lastTranslation = {
@@ -144,6 +164,9 @@ function translate(subtitleParent){
                 };
                 appendSubtitle(lastTranslation.original,lastTranslation.translated,subtitleParent);
             }
+        }).catch(err=>{
+            alert(err);
+            startTranslation();
         });
     }
 }
